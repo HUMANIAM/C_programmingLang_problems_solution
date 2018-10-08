@@ -1,0 +1,8 @@
+## control flow of the program ##
+1- if(con){}else if(con){}else{}
+
+2- switch(expre){case const expre: statements; break; case case1: statements; break; ............... default: statements; break;}
+   EX :: case(1): case(2): ................................. : case(n): statements; break;
+         case(n+1): case(n+2): statements; break; ...... default: statements; break;
+
+3- goto can be used to break from to loops for()for(){goto error;} error:

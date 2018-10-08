@@ -1,0 +1,88 @@
+## in this chapter we will study functions and program structure ##
+
+1- if the return type of a function is omitted the default will be int
+2- if a function fails to return a value its return will be garbage
+3- cc main.c function1.c ..... will be compiled into main.o function1.o .... and combined into one file called a.out
+4- if error occurs in say main.c you can recompile only main.c by cc main.c function1.o .........
+5- the function must be defined consistently in the source code to avoid mismatched return say
+    : function defined in source file1 :: float x(){}  //compiled separately
+    : in calling int main(){int y = x();} //no error
+    : main(){float x(); int y=x();}           //compilation error
+
+6 - c doesn't allow function defined in anther function
+7- external variables has long lifetime and greater scope
+8 - automatic variables are internal to function where they are disappear when the function is exit
+9- libraries has precompiled routines this will save in time
+10- scope of name is the part of the program within which it can be seen
+11- the function to use global vars it must be declare after the declaration of the global vars if not the function
+    must use extern key word :: extern int x; or extern int x[]
+
+12- declaration of announces the properties of the variables its type but definition cause storage to be set aside
+
+13- you can make a header file of your all project's functions and macros then implement them in different source files by including
+    the header file in every source FILE
+
+    ///static vars/fns
+14- static word used in c to make variables or functions are access only through their source file
+15- if you are in source file and there are variables or functions defined in other source files and there is no shared header file between them
+    or variables of functions that you want to use in this file source are defined in the source file
+    EX : source file1{int x =10;} to use x in sf2 you need to say {extern int x;}
+       : sf1{int x(void){}} to use x function in sf2 you need to say {extern int x(void);}
+
+16- say in one of your source file you define global var int x = 10; you can not define it again in other source files
+    error : multiple definition of x
+    solution : to make global variable or function visible only to its source file so you can define other vars has the same name in other
+    -------     source file you need to use key word before the definition.
+
+17- if you want global variables or functions in one of source file hidden/unvisible to other source files even they use extern key word with them all
+    you need to do is write static key word before the definition
+
+18- if declare a static function in other source file as extern you will get error : this fn was declared extern and later static
+19 default type of var / function is extern where other files can use them to make them private use static
+20- static vars can be used to create vars private, permanent storage within a single function
+21- static vars are initialized only the first time  the block is entered
+
+    ///register variables
+1- register declaration advises the compiler that the variable in question will be heavily used. so this register variable will be put in machine results
+    results: may results in smaller and faster programs     ::: compiler are free to ignore them
+    -------
+2- can be applied only to automatic vars and function parameters ex : register int x;
+
+    /////block structure
+1- c is not a block-structured language because functions may not be defined within other functions
+2- automatic and formal parameters hide the external variables and functions of the same name
+
+    ////initialization
+1- automatic and register variables are initialized with garbage value
+2- if initialization values of array less than the array size the remaining values will be zero
+3-In C, we have used Macro function an optimized technique used by compiler to reduce the execution time in c++ inline functions
+    which is an optimization technique used by the compilers especially to reduce the execution time.
+    inline functions like macros compiler replace them during the compile time with their code through all the source code
+    less time but more memory.
+    warning : increases the executable size, which may cause thrashing in memory. not good in embedded system
+
+    ///////c preprocessor
+//swap using
+#define macro replacement text
+#define swap(t,x,y) { t _z; \
+             _z = x;\
+              x = y;\
+              y = _z; }
+1- if the header file is quote the preprocessor search begins from the project folder
+2- when an included file is changed, all files that depend on it must be recompiled
+		///conditional inclusion
+1-#if !defined(macro)
+  #elif
+  #endif
+2-#if SYSTEM = SYSV
+	#define HDR "sysv.h"
+  #elif SYSTEM = SYSM
+	#define HDR "sysm.h"
+  #endif
+
+#include HDR
+3-#ifndef HDR
+  #define HDR
+  
+  //define hdr code her
+  #endif

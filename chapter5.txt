@@ -1,0 +1,54 @@
+#in this chapter we will study pointers and how we can deal with them
+#also learning about functions
+
+1- void* is a generic pointer can points to any type
+
+ /////pointers and addresses
+ 1- unary operator & gives the address of an object
+ 2- unary operator * dereferencing operator to get the content of the object that point to
+    ex: int* p, a[10]; p=&a[0]; then p points to the first element of array a where it holds its address
+
+    //functions and pointers
+1- call by value : swap(x, y); void swap(int x, int y){}
+2- call by reference : swap(x, y); void swap(int& x, int & y){}
+3- call by pointers : swap(x, y); void swap(int* x, int* y){} //this is the only way rather than c++
+4- pointer version of arrays is faster than the array version int* p is faster than p[]
+5- int* p; p+1 :: means it points to the next location in the memory
+6- in c a[i] is convert to *(a+i) so the next version is faster where the compiler doesn't need the conversion step
+7- ** pointer is variable but array not so you can say ::
+    int a[10], *p;
+    p = a; //valid
+    a = p; //not valid      p++ >> valid  :: a++ not valid
+
+8- when an array passed to a function what really passed is the address of the first location of the array
+9- in c you can say s[-1] if you sure it isn't ' out the array bounds
+10- pointers and integers not interchangeable but zeros is where pointer can be compared with constant zero
+11- NULL is defined in stdlib library
+
+    /////character pointers and functions
+1- pointers are variable but arrays names are not
+
+    ////pointers of pointers and arrays
+1- we can use array of pointers to points to line of texts or words
+2- number of rows in an array is irrelevant so the pointer can points to array of lists instead of array of elements
+    int f(int a[2][3]) == int f(int a[][3]) == int f(int(*a )[3])
+
+    but :: int* d[13] is a pointer to array of 13 pointers
+
+3- int a[2][10];   //20 location has been allocated to a
+   int *a[2];       //no memory is allocated you need to allocate it by malloc()
+   *** the main advantage of array of pointers to matrix is that you can assign different sizes to rows in array of pointers
+
+    ////// pointers to functions
+1- function itself is not a variable but it is possible to define a pointer to a function
+    these pointers can be assigned, placed in arrays, passed to functions, return by functions
+
+2- you can consider the name of the function as a pointer to the location of the memory
+3- any pointer can be casted to void and return back to its type without any loss of information
+4- to pass function to another function you need to use a pointer to this passed function this can be done by
+    like this example :: void fn(void(*pfn)(int, int)){ (*pfn)(1, 2);}
+    void *pfn(int ,int) ?? not correct where instead define a pointer to afunction it is declaration of function return void pointer
+
+
+
+

@@ -1,0 +1,49 @@
+* in this chapter we try to make concrete basics of c from the original authors' book
+* this first chapter is just a simple introduction to c and its main features
+
+
+Notes :
+-------
+1 - you need to define your variables at the beginning of the function before use them
+
+2 - the size of these objects are machine-dependent (objects are data types)
+
+3 - printf() is not part of the c language but a useful function from the stdlib of functions that are normally accessed to c programs
+
+4- if operator has one operand int and the anther floating point. int operand will be converted to floating point
+
+5- there is no overloading in c language.
+
+6- the choose between for and while is arbitrary
+   * if for has no body use null semicolon at the end of for EX: for(;;);
+
+7- it is a bad idea to bury the "magic numbers" like the lower and upper in the fahr_to_celsius program so we use symbolic name or symbolic constant
+    * symbolic constant gives meaning to your magic numbers by using key word #define name replacement text
+    * so, any occurrence of the name will be changed by the replacement text.
+    * EX : #define LOWER 0 , #define STEP 20    //there is no semicolon
+
+8- text stream is a sequence of characters divided into lines
+    * putchar() : write a char and returns its value
+    * getchar() : read a char and returns its value. note this char come from the keyboard
+    * we declare the c variable as int type to be able to hold any big character like EOF or other chars but char type is limit to specific chars
+    * if you use putchar() the chars are written to the standard output descriptor but when you write \n to this descriptor all the content is flushed into the screen
+    * EOF is a specific number defined in the stdio library so use int to be able to hold this number
+
+9 - return zero value from the main implies normal termination, but zero implies an error has been occurred. (return means status of the function success/fail)
+
+10 - function prototype EX: int pow(int, int) ::::: function definition EX: int pow(int x, int y){//your code}
+
+11 - there are 2 types of variables according to the scope (local or private or automatic and global or public)
+    * global variable can be used by any functions in the same file or from other files without declare them again
+    * local variables can be used through the same functions. if this vars are static they keep their existence even the function is return
+    * if declare local var with the same name of global var the usable var through the function will be the local one
+    * you can't declare 2 global vars through header and its source with the same name.
+    * if you declare a global variable and want to access it through a specific function you need to re_declare it again explicity by extern key work
+        EX: int x[10]; int y;    :::: void fn()P{extern int x[]; extern int y;}  // this to make global vars are known to the functions
+    *if you define the global vars at the beginning of the source file then the internal definition is redundant
+    * if you define the global at the file1 and use it in file 2 and file 3 then you need to declare them by extern key word in file 2 and file 3
+    * when we indicate to the nature of variable without assigning any storage we say "declaration". if we assign storage we say "definition"
+
+12 -  In C, to declare a function that can only be called without any parameter, we should use “void fun(void)”.
+
+13 - In C, functions can return any type except arrays and functions. We can get around this limitation by returning pointer to array or pointer to function.

@@ -1,0 +1,49 @@
+In this chapter we review Types, operators and Expressions
+
+Notes:
+-----
+1- char, int, float(single-precision floating point), double (double-precision floating point), short int, long int, long double
+    long :: is at leas 32 but int 16 and also short. they at most cases machine dependent
+
+2- long is written with a terminal (l or L) ex:: 55l and unsigned long terminated with (ul or UL)
+
+3- floating point constants contains decimal point their type is "double" unless suffix (f or F) if suffix is (l or L) it means long double
+
+4- octal integer :: 055 ||| hexadecimal integer :: 0x55 >>> can be followed by suffix like ul or l
+
+5- character constant >> 'a' | '\n'  | '\000' (octal from 0 to 7) | '\xhh' hexa from 0 to F
+
+6- the character '\0' represents the character with value 0  (null character)
+
+7- constant expression :: #define constantName value
+
+8- string constant :: is array of characters >>> #include <string.h> to use useful functions like
+    * strlen(str)  >> length of the string constant
+    * strcmp(str1, str2) >> compare 2 strings
+    * strcpy(to, from)  >> copy from to to
+
+9- enumeration constant :: is a list of constant integer values as >> enum boolen{NO, YES};
+    * names in the enumeration must be different but values not necessary
+    * it is an alternative to #define method. enum complete you with values
+    * You can say:: enum x{}; and int x; in the same source file because c doesn't store both in the same namespace
+
+10- you can use put() to print constant string msg on the screen and :: y can use gets(arrOfChars) to get string from the user
+
+11-C uses the term namespace to identify parts of a program in which a name is recognized. there is private namespace for struct, enum, union and
+    anther namespace for ordinary variables
+
+12- typedef :: enables you to create your own name for a type. it is like #define but there are some differences
+    * typedef is limited to giving symbolic names to types only and not to values.
+    * The typedef interpretation is performed by the compiler, not the preprocessor
+    *Within its limits, typedef is more flexible than #define.
+    * typedef is good at portablitiy and readability
+    * you can say typedef struct{} POINT;
+
+13- external and static variables are initialized by zero by default
+14- casting through var1 = (type) var2
+15- n++ :: after the variable used but ++n :: before the variable is used
+
+16- Bitwise operators :: &, |, ^, <<, >>, ~ can be applied on int, short, long, char
+    * with the shift operator we fill the empty positions with 0
+
+17- conditional operator :: x = (a>b)? a:b;

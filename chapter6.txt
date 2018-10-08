@@ -1,0 +1,23 @@
+///this chapter is about structure as a data type
+Notes:
+-----
+        ///structures definition
+
+1- struct, an ordinary variable, member can have the same name
+2- declare variables during define the struct >> struct Struct{} x, y, z;
+3- struct declaration is not followed by a sequence of variables does not reserve any storage
+4- structures may not be compared
+
+     /// structures and functions
+
+1- (), [], -> have the highest precedence operators
+2- we use pointers to struct to avoid the cost of coping it when pass them to functions
+
+    ///arrays of structures
+1- array of structs like any other data type
+
+    ///self referential structure
+1- using the struct itself as a parameter in its declaration ex: struct K{struct K k1;};
+2- in this part he talk about binary search tree to sort unexpected sequence of words lexicographically
+    bst(all children nodes left to the parent are less than the parent and all children nodes right to the parent are equal or greater than the parent)
+2-
