@@ -35,24 +35,48 @@ struct Point makePoint(int x, int y){
     return p;
 };
 
-///play with arrays of structures
-//count the occurrence of keywords need two parallel arrays one for keywords and one for counting
-//but we can do it by just array of structures and every structures has 2 elements word, count
-#define MAXWORD 200
-struct KWord{
-    char* word;
-    int coun;
-} keywords[] ={{"auto", 0},{"break", 0},{"case", 0},{"char", 0},{"const", 0}, {"continue", 0}};
-
-#define NKEYS (sizeof(keywords)/sizeof(keywords[0]))
-//the expression in #define does not evaluated by the preprocessor
-
-//get char
-#define BUFFSZ 1000
+///play with self referential structures
+//using binary search tree to count unexpected number of words
+// this coming program is provide the following features
+/**
+1- read c program from stdin or from file
+2- sort words in groups every group has words that has the same initial n chars
+3- ignore comments, constant strings, <*> and keywords{const, int, default case, if, else, while for, int, float, long, double, include, define, .....}
+4- print groups in ascending order lexicographically
+*/
+#define MAXWORD 200         //maximum length of word
+#define BUFFSZ 1000         //for ungetch function
 int buff[BUFFSZ];
 int buffpoin=0;
-int getch(){
-    if(buffpoin==0) return getchar();
+
+typedef struct Word{    //every word points to the next word to it in the same group
+    char* word;
+    struct Word * nextWord;
+} Word;
+
+typedef struct Node{    //every node in the tree represent its group so it is a tree of groups of words not word
+    Word * wrordsInGroup;
+    int coun;
+    struct Node * left, * right;
+} Node;
+
+typedef struct Key{
+    char* key;
+    struct Key * left, * right;
+} KeyNode;
+
+char* keywords[] = { "include", "define", "main", "typedef", "int", "return", "float", "double", "unsigned", "signed"
+                      "if", "else", "for", "while", "case", "switch", "default", "volatile", "struct", "union", "enum",
+                      "ifdef", "ifndef", "break", "continue", "char"
+                    };
+#define KEYWORDS sizeof(keywords) / sizeof(keywords[0])
+int first_match_chars = 1;
+
+KeyNode * keysRoot = NULL;  //for representing bst of keywords to search if word is in keywords or not
+
+//get char
+int getch(FILE * fh){
+    if(buffpoin==0) return fgetc(fh);
     else return buff[--buffpoin];
 }
 
@@ -65,19 +89,94 @@ void ungetch(int c){
     }
 }
 
+//build binary search tree for the keywords
+KeyNode * add2bstKey(KeyNode* node, char* wrd){
+    int cond;
+    if(node == NULL){
+        //create node
+        node = (KeyNode *) malloc(sizeof(KeyNode));
+        if(node == NULL){
+            perror("not enough memory to add new key\n");
+            exit(1);
+
+        }else{
+            node->key = wrd;
+            node->left = node->right = NULL;
+        }
+    }else if((cond=strcmp(node->key, wrd))>0){
+        node->left = add2bstKey(node->left, wrd);
+
+    }else if (cond < 0){
+        node->right = add2bstKey(node->right, wrd);
+
+    }else{}
+
+    return node;
+}
+
+//build bst of key words
+void build_BST_Keys(){
+    int i=0;
+    while(i<KEYWORDS)
+        keysRoot = add2bstKey(keysRoot, keywords[i++]);
+}
+
+//binary search in key words
+int bstKeys(KeyNode * node, char* wrd){
+    int cond;
+    if(node != NULL){
+        if((cond = strcmp(wrd, node->key)) == 0)
+            return 1;
+
+        else if (cond<0)
+            return bstKeys(node->left, wrd);
+
+        else
+            return bstKeys(node->right, wrd);
+    }
+    return -1;
+}
+
 //get word from the stdin input file
-int getword(char* wrd, int M){
+int getword(FILE* fh, char* wrd, int M){
     int c;
     char* w=wrd;
 
-    while(isspace(c=getch()));
+    while(isspace(c=getch(fh)));
 
-    if(c!='$') *w++=c;
+    //skip words in ""
+    if(c=='"')
+        while((c=getch(fh)) != '"' && c != EOF);
+
+    //skip <*>
+    if(c=='<')
+        while((c=getch(fh)) != '>' && c != EOF);
+
+    //skip words after comments // or /*/
+    else if(c=='/'){
+        c=getch(fh);
+
+        // if // comment
+        if(c=='/')
+            while(c!='/' && c!=EOF && c!='/n') c=getch(fh);
+
+        else if(c=='*'){// ignore all characters between /* */
+            while(1){
+                c = getch(fh);
+                if((c=='*' && ((c=getch(fh)=='/' || c==EOF))) || c == EOF) break;
+            }
+
+        }
+        while((c=getch(fh)) != '\n' && c != EOF);
+    }
+
+
+    if(c != EOF) *w++=c;
     if(!isalpha(c) && c!='_'){*w='\0'; return c;} //this char is skipped from the key
 
     //read the remaining of the word
     for(; --M>0; w++)
-        if(!isalnum(*w=getch()) && *w!='_'){
+        if(!isalnum(*w=getch(fh)) && *w!='_'){
             ungetch(*w);
             break;
         }
@@ -85,39 +184,164 @@ int getword(char* wrd, int M){
     return wrd[0];
 }
 
-//binary search
-int binSearch(word){
-    int l, r, m, cond;
-    l=0; r=NKEYS-1;
-    while(l<=r){
-        m= (l+r)/2;
-        if((cond=strcmp(word, keywords[m].word))>0)
-            l=m+1;
-        else if(cond<0)
-            r=m-1;
-        else
-            return m;
+//duplicate word
+char* strdup(const char* wrd){
+    struct Word* pw = (struct Word *) malloc(sizeof(struct Word));
+
+    if(pw != NULL){
+        char* p = (char*) malloc(strlen(wrd)+1);
+
+        if(p != NULL){
+            strcpy(p, wrd);
+            pw->word = p;
+            pw->nextWord = NULL;
+
+        }else{
+           perror("there is not enough memory\n");
+           exit(1);
+        }
+
+    }else{
+        perror("there is not enough memory\n");
+        exit(1);
     }
-    return -1;
+
+    return pw;
 }
 
-//read the file of source code
-void readCode(char file[]){
-    int n;
+//create new node
+struct Node * talloc(char* wrd){
+    struct Node* p = (struct Node* ) malloc(sizeof(struct Node));
+
+    if(p != NULL){
+        p->wrordsInGroup = strdup(wrd);
+        p->coun = 1;
+        p->left = p->right = NULL;
+
+    }else{
+        perror("there is not enough memory\n");
+        exit(1);
+    }
+    return p;
+}
+
+//building the binary search tree
+struct Node * add2Goups(struct Node* node, char* wrd){
+    int cond;
+    if(node == NULL){
+        node = talloc(wrd);
+//        printf("add %s to new node\n", wrd);
+    }else if((cond=strncmp(wrd, (node->wrordsInGroup)->word, first_match_chars)) == 0){  //increment the current node by 1
+//        printf("add %s to group of %s\n", wrd, (node->wrordsInGroup)->word);
+        node->coun++;
+        Word* p = node->wrordsInGroup;
+        while(p->nextWord != NULL) p = p->nextWord;
+
+        //create new word
+        p->nextWord = strdup(wrd);
+
+    }else if(cond < 0){  //go to the left branch
+        node->left = add2Goups(node->left, wrd);
+
+    }else{  // go to the right branch
+        node->right = add2Goups(node->right, wrd);
+    }
+    return node;
+};
+//
+////print words occurrence dfs with in order traverse
+////display them in a sorted order
+void printGroups(Node* root){
+    if(root == NULL) return;
+
+    printGroups(root->left);      //left branch
+
+    struct Word * p = root->wrordsInGroup;
+
+    printf("This group matches in : ");
+    int i = 0;
+    int n = strlen(root->wrordsInGroup->word);
+
+    while(i<first_match_chars && i<n)
+        printf("%c", *((root->wrordsInGroup)->word + i++));
+    printf(" and has %d words\n---------------------------------\n", root->coun);
+
+    while(p != NULL){
+        printf("%s\n", p->word);
+        p = p->nextWord;
+    }
+    printGroups(root->right);      // right branch
+
+}
+
+void readWords(const char* file, int n){
+    FILE * fh;
+    //open the file
+    if((fh = fopen(file, "r")) == NULL){
+        printf("File : %s not exits check the path\n", file);
+        exit(1);
+    }
+
+    first_match_chars = n;
+
+    struct Node * root = NULL;  //root of the bst of groups
     char word[MAXWORD];
 
-    while(getword(word, MAXWORD) != '$')
-        if(isalpha(word[0]) && (n=binSearch(word))>=0)
-            keywords[n].coun++;
+    build_BST_Keys();       //build bst of key words
 
-    //print counts of words
-    for(n=0; n<NKEYS; n++)
-        if(keywords[n].coun>0)
-            printf("%s : %d\n", keywords[n].word, keywords[n].coun);
+    //groups words in the input file according to the first n characters match
+    while(getword(fh, word, MAXWORD) != EOF)
+        if(isalpha(word[0]) && bstKeys(keysRoot, word) == -1)
+            root = add2Goups(root, word);
+
+
+    //print groups
+    printGroups(root);
 
 }
 
+//sort words decreasingly according to frequencies
+struct Node* addWordSortByFreq(struct Node* node, const char* wrd){
+    int n = strlen(wrd);
+    if(node == NULL){
+        node = talloc(wrd);
 
-///play with pointers with structures
+    }else if(strcmp(wrd, (node->wrordsInGroup)->word ) == 0){  //increment the word frequency
+        node->coun++;
+
+    }else if(n < node->coun){// add to left branch
+        node->left = addWordSortByFreq(node->left, wrd);
+
+    }else{      //add to right branch
+        node->right = addWordSortByFreq(node->right, wrd);
+    }
+    return node;
+};
+
+//read arguments to the program
+void readArgs(int argv, char** argc, int* n, char* file){
+     while(--argv > 0 && **++argc=='-'){
+        switch(*(++(*argc))){
+            case 'n' :
+                if(--argv > 0)
+                    if((*n = atoi(*++argc)) == 0) *n++;
+              break;
+
+            case 'f' :
+                if(--argv > 0)
+                    strcpy(file, *++argc);
+                break;
+
+            default:
+                printf("%s incorrect option where options -f filepath -n matched chars length", *argc);
+                exit(1);
+        }
+    }
+
+    if(argv > 0){
+        printf("add correct options before passed arguments -f or -n\n");
+        exit(1);
+    }
+}
 
 #endif // CHAPTER6_H_INCLUDED
