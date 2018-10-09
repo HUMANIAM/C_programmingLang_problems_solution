@@ -51,7 +51,8 @@ int buffpoin=0;
 
 typedef struct Word{    //every word points to the next word to it in the same group
     char* word;
-    struct Word * nextWord;
+    int coun;
+    struct Word * left, * right;
 } Word;
 
 typedef struct Node{    //every node in the tree represent its group so it is a tree of groups of words not word
@@ -194,7 +195,8 @@ char* strdup(const char* wrd){
         if(p != NULL){
             strcpy(p, wrd);
             pw->word = p;
-            pw->nextWord = NULL;
+            pw->coun = 1;
+            pw->left = pw->right = NULL;
 
         }else{
            perror("there is not enough memory\n");
@@ -225,6 +227,24 @@ struct Node * talloc(char* wrd){
     return p;
 }
 
+//binary search tree per group
+struct Word * bstGroup(struct Word* node, char* wrd){
+    int cond;
+    if(node == NULL){
+       node = talloc(wrd);
+    }else if((cond = strcmp(wrd, node->word)) == 0){
+        node->coun++;
+
+    }else if(cond < 0){
+        node->left = bstGroup(node->left, wrd);
+
+    }else{
+        node->right = bstGroup(node->right, wrd);
+
+    }
+    return node;
+};
+
 //building the binary search tree
 struct Node * add2Goups(struct Node* node, char* wrd){
     int cond;
@@ -233,12 +253,12 @@ struct Node * add2Goups(struct Node* node, char* wrd){
 //        printf("add %s to new node\n", wrd);
     }else if((cond=strncmp(wrd, (node->wrordsInGroup)->word, first_match_chars)) == 0){  //increment the current node by 1
 //        printf("add %s to group of %s\n", wrd, (node->wrordsInGroup)->word);
-        node->coun++;
-        Word* p = node->wrordsInGroup;
-        while(p->nextWord != NULL) p = p->nextWord;
 
-        //create new word
-        p->nextWord = strdup(wrd);
+        //increment number of words per group
+        node->coun++;
+
+        //put the new word in the correct node in bst of group of words
+        node->wrordsInGroup = bstGroup(node->wrordsInGroup, wrd);
 
     }else if(cond < 0){  //go to the left branch
         node->left = add2Goups(node->left, wrd);
@@ -250,6 +270,15 @@ struct Node * add2Goups(struct Node* node, char* wrd){
 };
 //
 ////print words occurrence dfs with in order traverse
+
+//print words per group
+void printMembersPerGroup(struct Word* root){
+    if(root != NULL){
+        printMembersPerGroup(root->left);
+        printf("%s : %d\n", root->word, root->coun);
+        printMembersPerGroup(root->right);
+    }
+}
 ////display them in a sorted order
 void printGroups(Node* root){
     if(root == NULL) return;
@@ -258,18 +287,10 @@ void printGroups(Node* root){
 
     struct Word * p = root->wrordsInGroup;
 
-    printf("This group matches in : ");
-    int i = 0;
-    int n = strlen(root->wrordsInGroup->word);
-
-    while(i<first_match_chars && i<n)
-        printf("%c", *((root->wrordsInGroup)->word + i++));
-    printf(" and has %d words\n---------------------------------\n", root->coun);
-
-    while(p != NULL){
-        printf("%s\n", p->word);
-        p = p->nextWord;
-    }
+    printf("This group has %d words \n", root->coun);
+    printf("---------------------------------\n");
+    printMembersPerGroup(p);
+    printf("\n***********************\n");
     printGroups(root->right);      // right branch
 
 }
