@@ -5,6 +5,8 @@
 #include <ctype.h>      //isalpha, isalnum, isspace functions
 #include <string.h>
 #include <stddef.h>     //for size_t
+/// unions are used to hold variable of different size
+union Un{int x; float y; char* s;};
 ///in this chapter we review the structure data structure as a container can contains different types of elements
 struct Point{int x, y} point1, point2;
 struct Rect{struct Point p1, p2;};
@@ -363,6 +365,111 @@ void readArgs(int argv, char** argc, int* n, char* file){
         printf("add correct options before passed arguments -f or -n\n");
         exit(1);
     }
+}
+
+/// playing with struct to build lookup table which is used by the preprocessor to replace macro with value
+/**
+Using an array to hold the names and their values. This mean every entry in the array is list where many collisions of hashes may happens
+Steps:
+1- to add a key:value >> compute the hash of the key if not exist in the array add it else do nothing
+2- to search a key:value >> compute the hash if not exists in the list of the entry of the array return null else return pointer to the value
+*/
+
+#define HASHSIZE 200
+//many keys may have the same hash so we use array of list
+typedef struct Entry{
+    struct Entry * next;
+    struct Entry * previous;
+    char * key;
+    char * value;
+} Entry;
+
+static Entry* hashTable[HASHSIZE];   // static to be visible to the current source file
+
+//Hash Function
+unsigned int hashValue(const char* s){ //unsigned to ensure the hash value is non-negative
+    unsigned int hashv = 0;
+    while(*s != '\0')
+        hashv = *s++ + 31 * hashv;
+
+    return hashv%HASHSIZE;
+}
+
+//duplicate the string
+char* stringdup(const char* str){
+    char* ptr = (char*) malloc(sizeof str);
+    if(ptr != NULL){
+        strcpy(ptr, str);
+    }
+    return ptr;
+}
+
+//lookup function
+Entry* lookup(const char* key){
+    unsigned int hv = hashValue(key);
+    Entry* en;
+
+    //traverse in the linked list is backward walking entry of hash table is points to the last entry in the list
+    for(en = hashTable[hv]; en!=NULL; en=en->next)
+        if(strcmp(key, en->key) == 0)
+            return en;
+
+    //the key not found
+    return NULL;
+}
+
+//add entry
+// we can use binary search to add and search the values in O(log(n)) instead of O(n)
+Entry* addEntry(const char* key, const char* value){
+    //check first the key not exist if not add it
+    Entry* en;
+
+    if((en=lookup(key)) == NULL){ // the key is not in the hash table so we add it
+        en = (Entry*) malloc(sizeof(Entry));
+
+        if(en==NULL || (en->key = stringdup(key)) == NULL)
+            return NULL;
+
+        //update pointers of doubly linked list
+        unsigned int hv = hashValue(key);
+        en->next = hashTable[hv];
+        en->previous = NULL;
+
+        if(hashTable[hv] != NULL)
+            hashTable[hv]->previous = en;
+        hashTable[hv] = en;
+
+    }else{
+        //change its value to the new one
+        free((void*) en->value);
+    }
+
+    if((en->value = stringdup(value)) == NULL)
+        return NULL;
+
+    return en;
+}
+
+//undef is to remove a key and value from the hash table
+void undef(const char* key){
+    unsigned int hv = hashValue(key);
+    Entry* en;
+    //traverse in the linked list is backward walking entry of hash table is points to the last entry in the list
+    if((en=lookup(key)) != NULL){
+            //free its key and value
+            free((void*) en->key);
+            free((void*) en->value);
+
+            //shift pointer previous of the next element to the the previous of the element we will delete
+            if(en->next != NULL)
+                en->next->previous = en->previous;
+
+            //shift the pointer next of the previous element to its next
+            if(en->previous != NULL)
+                en->previous->next = en->next;
+
+            return;
+        }
 }
 
 #endif // CHAPTER6_H_INCLUDED

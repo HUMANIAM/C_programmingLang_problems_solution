@@ -9,12 +9,10 @@ int x, y;
 } x;
 int main(int argv, char** argc)
 {
+struct s{unsigned int x : 2;} ss;
+ss.x = 3;
 
-    int n = 1;
-    char file[100] = "";
-    readArgs(argv, argc, &n, file);
-    //read from input
-    readWords(file, n);
+printf("%d", ss.x);
 
 	return 0;
 }
