@@ -1,0 +1,67 @@
+/// in this chapter we train/practice on input and output facilities of c
+General notes
+-----------
+1- input/output facilities are not part of the c language itself
+2- in this chapter we will describe the std library that is a set of functions that provide in/out, string handling, storage management, mathematical routines
+    and a variety of other services for c programs. we will concentrate on I/O functions
+
+****** General functions of notes *********
+* int getchar(void)     // read char from the standard input by default the keyboard
+* int putchar(int)      // write char into the standard output  by default the screen
+* sprintf(char* string, format, arguments)  //store argument in specific format in the stirng
+* printf(string format, arguments);        // return number of bytes it prints put the string into the standard output file
+
+
+    /// Standard I/O library
+        -------------------
+1- the simplest input mechanism is to read on character at a time from the standard input, normally the keyboard with getchar()
+        int getchar(void);    //char or EOF (EOF = -1) that defined in stdio.h
+
+2- in many environment the file may be substitute for the keyboard by using the < for input redirection
+3- may we read the input from the output of another program (piping) EX: (prog1 | prog2)
+4- standard output is screen so the function [int putchar(int)] write char into the screen. You can change the destination by redirection the out into a FILE
+    prog > outfile  or using piping EX[prog1 | prog2] so put the standard output of the program prog1 into the standard input of the program prog2
+5- when the name of the library is surround by <library> a search is made for the header in the standard set of places
+6- functions like getchar(), putchar(), tolower() are often macros thus avoid the overhead of the function call per character
+
+
+    //// Formated output: printf()
+    ------------------------------
+1- the output function printf() translate the internal values to chars printf(char* fromat, arg1, arg2, .......)
+2- printf() returns the number of chars it prints
+3- format may contains const chars or conversion specification like %d, %i, %c, %s, ......
+4- besides conversion specifications that you are familiar with there is this format printf("%.*s", max, string) max : number of chars you want to print from str
+5- sprintf(char* string, format, arg1, arg2, ......., argn)
+
+
+    /// Variable argument List
+    --------------------------
+1- to call function with varied number and types of arguments you use this notation ... Ex: printf(char* fmt, ...);
+    but there is a tricky how the called function read the arguments despite of these arguments has no names and we do not how many are they?
+2- the standard header <stdarg.h> contains a set of macros definitions that define how to step through an argument list
+    the implementation of this header will vary from machine to machine bu the interface it presents in uniform
+    there must be at least one named argument to initialize the argument pointer by { va_list ap; va_start(ap, firstarg); }
+
+
+    /// formated input : scanf(char* format, args)
+1- scanf(char*, args) : read from the standard library and args must be pointers and return number of args that it read successfully
+2- sscanf(const char* string, const char* format, arguments); read from a string instead of standard input FILE
+3- you can use string chars with the scanf function but it must much the input
+    scanf("%d/%d/%d", &day, &month, &year);
+
+4- to read input its format is not fixed it is preferred to read a line at a time then pick it apart using sscanf()
+
+    EX: date here is dynamic not has a specific format
+
+    while((getline(line, sizeof(line)))>0){
+        if(sscanf(line, "%d/%d/%d", &day, &month, &year) == 3)
+            printf("valid date format\n");
+
+        else if(scanf(line, "%d %s %d", &day, month, &year) == 3)
+            printf("valid date format\n");
+
+        else
+            printf("invalid format for date\n");
+    }
+
+5-
