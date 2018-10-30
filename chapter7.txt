@@ -64,4 +64,132 @@ General notes
             printf("invalid format for date\n");
     }
 
-5-
+    //// file access
+    -----------------
+1- in the previous chapter we use the standard input file stdin for input and the standard output file stdout as the output FILE
+2- we use the fopen(char* filePath, char* mode) that return file pointer to deal with the file as reading writing and appending
+    EX : FILE * fp; fp = fopen(char* name, char* mode);
+3- allowable modes {r, w, a} to deal with binary files use b character with the mode
+4- opening an existing file to write cause the old contents to be discarded while opening for appending preserve them
+5- trying to read a file does not exist result in error also an error can appear if you try open a file you do not have permissions to open it
+6- if any error happens fopen() returns NULL value
+7- After opening the file how can we read or write into the file.
+    - int getc(file pointer)    //read the next char return EOF if it reaches to the end of file
+    - int putc(char, file pointer) //write a char and return it if no error happens or EOF if an error occurs
+
+8- when the c program is started the OS is responsible for opening 3 files {stderr, stdout, stdin}
+    * stdin is connected to the keyboard
+    * stdout is connected to the screen
+    * stderr is connected to the screen
+    but stdin or stdout can redirect to pipes or files
+
+9- getchar and putchar can be defined in terms of getc and putc
+    #define getchar() getc(stdin)
+    #define putchar(c) putc((c),  stdout)
+
+
+10- for formatted input and output to the file int fscanf(file pointer, format, arguments) | int fprintf(file pointer, format, arguments)
+11- fclose(file pointer) breaks the connection with the file pointer and the external name that was established with fopen()
+12- fclose() is called automatically when the program is terminated normally
+13- you can close stdin or stdout if they do not need through your program and also they can be reassign by freopen()
+
+        /// Error Handling _ stderr and Exit function
+        ----------------------------------------------
+1- pipeline is used to path data between programs
+2- there is a situations we need to handle it correctly assume in the cat programs say cat file1.txt file2.txt file3.txt and we concatenate file1 and file2
+    to the stdout correctly but some error happens with the third file what happen is the error message will be appended to the concatenated content of file 1
+    and file 2 that is not critical if that output is printed into the std output file but if the output is passed to another program by pipelining or the output
+    is store in a file. you can see that this may result in a problem where the error message is considered as part of the concatenated content
+    Solution : we can handle this problem by print the error message in the stderr output file instead of stdout or pipeline or into a file
+3- when you call exit(nonzero value) : exit function close all open files to flush out any buffered output
+4- ferror(file pointer) return non-zero value if there is an error occurs in the stream like the disk fills up
+5- feof(file pointer) returns non-zero value if the pointer reaches to the end of file
+
+    //// Line Input and Output
+1- we use int getc(file pointer) and int putc(char c, file pointer) to deal with characters
+    and use fscanf(file pointer, format, args) and fprintf(file pointer, format, args) to deal with specific format in file or in  a string using sscanf(), sprintf()
+
+2- now we deal with lines fgets(char* line, int maxline, FILE* fp). it reads the next line with maximum size sz including endline
+    at most maxline - 1 chars will be read where the last char is null character '\0'. it returns pointer to the line it reads
+
+3- fputs(const char* line, FILE* fp); write line into the file without newline //if success return 0 or EOF
+
+4- gets() and puts() like fgets() and fputs() but the first two functions deal with standard input and standard output files
+    fputs() put '\n' at the end of the line but fgets() delete '\n' from the line
+
+5- put in your mind that register variables are stored in the cpu registers where they are more fast to access but you can not take the address of the register variable
+    but you get it by luck where may be there no enough cpu registers then the variable becames an automatic variable. and also you can not use address operator with it even it auto variable
+
+
+    //// malicious functions
+    -------------------------
+^ String operations
+********************
+* strcat(char* des, char* src)  // des += src
+* strcpy(char* des, char* src)  // des = src
+* strncat(char* des, char* src, int n) // des += src[0:n];
+* strcmp(char* str1, char* str2) //compare two strings return 1 if str1> str2 0 if they are equal and -1 if str1<str2
+* strncmp(char* s1, char* s2, int n) //compare the first n chars of s2 with s1
+* strncpy(char* des, char* src, int n) // cpy the first n chars of src in des
+* strlen(char* str)  //len of str
+* strchr(char* str, char c)  //return pointer to the first occurrence of c in str
+* strrchr()char(char* str, int c) // return pointer to the last occurrence of c in str or return NULL if not exist
+
+^ character class testing and conversion
+*************************************
+* isalpha(c)
+* isalnum(c)
+* isdigit(c)
+* isupper(c)
+* islower()
+* isspace(c)
+* tolower(c)
+* toupper(c) //return c converted to upper
+
+^ ungetc()
+***********
+ungetc(int c, FILE* file pointer) // push back char c int file
+
+^command execution by : system(char* command)
+******************************************
+ex: system("date");  //print day and date of today
+function system() execute the program in it before execute the program itself
+
+^storage management
+******************
+using malloc(size) or calloc(size_t sz, sizeof element)
+ex:
+int *p = (int*) malloc(100*sizeof(int))
+int *s = (int*) calloc(100, sizeof(int))
+
+to free the memory use free((void*) memory pointer)
+
+common error: avoid it
+to free list of pointers
+for(p=head; p!=NULL; p=p->next) //wrong
+    free(p);
+
+for(p=head; p!=NULL; p=q){  //the right way to free the list of pointers
+    q = p->next;
+    free(p);
+}
+
+^mathematical functions
+**********************
+* sin(x) // x in radians
+* cos(x) // x in radians
+* fabs(x)
+* exp(x)
+* log(x)
+* log10(x)
+* pow(x, y)
+* sqrt(x)
+* atan2(y, x)
+
+^ Random Number Generation
+**************************
+rand() //return integer value from 0 to RAND_MAX
+srand(unsigned int value) //used to seeding random generator
+
+generate random numbers [0, 1]
+#define frand()((double) rand() /(RAND_MAX+1.0))

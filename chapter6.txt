@@ -18,6 +18,28 @@ Notes:
 
     ///self referential structure
 1- using the struct itself as a parameter in its declaration ex: struct K{struct K k1;};
-2- in this part he talk about binary search tree to sort unexpected sequence of words lexicographically
+2- it is illegal for struct to have an instance for itself but declaration is legal
+3-
+4- in this part he talk about binary search tree to sort unexpected sequence of words lexicographically
     bst(all children nodes left to the parent are less than the parent and all children nodes right to the parent are equal or greater than the parent)
-2-
+
+    /// table lookup
+1- lookup table used by the preprocessor to replace the macros with values
+2- it is like the hash table key : value by using hash function searching will be O(1)
+3- typedef is interpreted by the compiler but #define interpreted by the preprocessor
+4- complex using of typedef
+    typedef int(*PFI)(char*, char*) //PFI is pointer to function return int and take 2 parameters char*
+    usage : PFI strcmp, numcmp;     //strcmp pointer to a function return int and take 2 parameters char*
+5- using typedef with types that machine-dependent where all you need is changing the typedef
+6- typedef provide beside portability issue better documentation
+
+        //unions
+1- union is a variable that holds (at different times) objects of different types and size
+2- union is large enough to hold the large member
+3- the type retrieved must be the type most recently stored
+
+
+    /// Bit fields
+1- to specify the size of member in struct in bits you can use single colon :
+    EX: struct S{ int x : 2; unsigned int y : 6;}
+2- fields are not arrays and do not have addresses so you can not use & with them

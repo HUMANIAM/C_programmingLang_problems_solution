@@ -1,18 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "Chapter6.h"
+#include <ctype.h>
+#include "Chapter7.h"
 
-struct p{
-int x, y;
-//char c;
-} x;
-int main(int argv, char** argc)
+void printscreen(char* line){
+while(putc(*line++, stdout));
+}
+
+int main(int argc, char **argv)
 {
-struct s{unsigned int x : 2;} ss;
-ss.x = 3;
-
-printf("%d", ss.x);
-
-	return 0;
+    //findPattern(argc, argv);
+    printf("%i\n", RAND_MAX);
+    printf("%i", rand());
+  return 0;
 }
